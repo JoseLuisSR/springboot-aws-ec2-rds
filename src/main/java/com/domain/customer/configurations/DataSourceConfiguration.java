@@ -36,7 +36,7 @@ public class DataSourceConfiguration {
 
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode secretsJson = null;
-        String secret, decodedBinarySecret = "";
+        String secret;
 
         // Create a Secrets Manager client
         AWSSecretsManager client  = AWSSecretsManagerClientBuilder.standard()
