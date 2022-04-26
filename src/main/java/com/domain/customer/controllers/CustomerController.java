@@ -17,12 +17,16 @@ public class CustomerController {
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE}, produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity createCustomer(@RequestBody Customer customer){
         String response = customerService.createCustomer(customer);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        if ( response.isEmpty() )
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .build();
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(response);
     }
 
     @GetMapping(produces = {MediaType.APPLICATION_JSON_VALUE})
     public ResponseEntity readCustomers(){
         Iterable<Customer> response = customerService.readCustomers();
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
