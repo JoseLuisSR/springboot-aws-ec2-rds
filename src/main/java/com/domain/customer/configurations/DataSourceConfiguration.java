@@ -5,12 +5,11 @@ import com.amazonaws.services.secretsmanager.AWSSecretsManagerClientBuilder;
 import com.amazonaws.services.secretsmanager.model.*;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -23,13 +22,6 @@ public class DataSourceConfiguration {
 
     @Value("${spring.aws.secretsmanager.region}")
     private String region;
-
-    @Bean
-    @Primary
-    @ConfigurationProperties("spring.datasource")
-    public DataSourceProperties appDataSourceProperties() {
-        return new DataSourceProperties();
-    }
 
     @Bean
     public DataSource dataSource(){
@@ -85,10 +77,12 @@ public class DataSourceConfiguration {
         String dbname = secretsJson.get("dbname").textValue();
         String username = secretsJson.get("username").textValue();
         String password = secretsJson.get("password").textValue();
-        appDataSourceProperties().setUrl("jdbc:mysql://" + host + ":" + port + "/" + dbname);
-        appDataSourceProperties().setUsername(username);
-        appDataSourceProperties().setPassword(password);
 
-        return appDataSourceProperties().initializeDataSourceBuilder().build();
+        HikariConfig config = new HikariConfig();
+        config.setJdbcUrl("jdbc:mysql://" + host + ":" + port + "/" + dbname);
+        config.setUsername(username);
+        config.setPassword(password);
+        HikariDataSource dataSource = new HikariDataSource(config);
+        return dataSource;
     }
 }
