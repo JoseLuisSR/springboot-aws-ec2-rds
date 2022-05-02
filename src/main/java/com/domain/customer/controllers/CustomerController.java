@@ -9,8 +9,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.NoSuchElementException;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping(value = "${customers.context.path}")
@@ -27,27 +35,24 @@ public class CustomerController {
 
         String id = customerService.create(customer);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .header(HttpHeaders.LOCATION, String.format("/%s/%s", contextPath, id))
+                .header(HttpHeaders.LOCATION, buildCustomerLocationHeader(id))
                 .build();
     }
 
     @GetMapping(path = "${customers.by.id}")
     public ResponseEntity<Customer> getCustomer(@PathVariable String id){
 
-        Customer customer;
+        Customer customer = customerService.readById(id)
+                .orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Customer not found with id " + id)); // 404, Not Found.
 
-        try{
-            customer = customerService.readById(id);
-        }catch (NoSuchElementException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .build();
-        }
         return ResponseEntity.status(HttpStatus.OK)
                 .body(customer);
     }
 
     @PatchMapping(path = "${customers.by.id}")
-    public ResponseEntity<Customer> updateCustomer(@PathVariable String id, @RequestBody Customer customer){
+    public ResponseEntity<Customer> updateCustomer(@PathVariable String id,
+                                                   @RequestBody Customer customer){
 
         if(!customerService.existsById(id))
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
@@ -71,7 +76,7 @@ public class CustomerController {
                     .build();
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .header(HttpHeaders.LOCATION, String.format("/%s/%s", contextPath, customer.getId()))
+                .header(HttpHeaders.LOCATION, buildCustomerLocationHeader(customer.getId()))
                 .build();
     }
 
@@ -94,6 +99,12 @@ public class CustomerController {
         Iterable<Customer> response = customerService.readAll();
         return ResponseEntity.status(HttpStatus.OK)
                 .body(response);
+    }
+
+    public String buildCustomerLocationHeader(String customerId){
+
+        return String.format("/%s/%s", contextPath,
+                customerId);
     }
 
 }

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -30,9 +29,9 @@ public class CustomerService {
         return customer.getId();
     }
 
-    public Customer readById(String id) throws NoSuchElementException{
-        return customerRepository.findById(id)
-                .orElseThrow(NoSuchElementException::new);
+    public Optional<Customer> readById(String id){
+
+        return customerRepository.findById(id);
     }
 
     public Iterable<Customer> readAll() {
