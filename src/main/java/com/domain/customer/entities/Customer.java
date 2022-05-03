@@ -1,12 +1,12 @@
 package com.domain.customer.entities;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+
+import java.util.List;
 
 @Getter
 @Setter
@@ -25,5 +25,9 @@ public class Customer {
 
     @Column(nullable = false)
     private Integer age;
+
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference
+    private List<Address> addresses;
 
 }
