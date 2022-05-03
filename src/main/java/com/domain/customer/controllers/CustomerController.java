@@ -20,6 +20,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Optional;
+import java.util.function.Function;
+
 @RestController
 @RequestMapping(value = "${customers.context.path}")
 public class CustomerController {
@@ -31,23 +34,20 @@ public class CustomerController {
     private String contextPath;
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity createCustomer(@RequestBody Customer customer){
+    public ResponseEntity createCustomer(@RequestBody final Customer customer){
 
-        String id = customerService.create(customer);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .header(HttpHeaders.LOCATION, buildCustomerLocationHeader(id))
-                .build();
+        return Optional.of(customerService.create(customer))
+                .map(customerId -> customerCreated.apply(customerId))
+                .get();
+
     }
 
     @GetMapping(path = "${customers.by.id}")
-    public ResponseEntity<Customer> getCustomer(@PathVariable String id){
+    public ResponseEntity<Customer> getCustomer(@PathVariable final String id){
 
-        Customer customer = customerService.readById(id)
-                .orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "Customer not found with id " + id)); // 404, Not Found.
-
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(customer);
+        return customerService.readById(id)
+                .map(customer -> customerOk.apply(customer))
+                .orElseThrow(() -> customerNotFound.apply(id));
     }
 
     @PatchMapping(path = "${customers.by.id}")
@@ -106,5 +106,16 @@ public class CustomerController {
         return String.format("/%s/%s", contextPath,
                 customerId);
     }
+
+    Function<String, ResponseEntity> customerCreated = customerId -> ResponseEntity.status(HttpStatus.CREATED)
+            .header(HttpHeaders.LOCATION, buildCustomerLocationHeader(customerId))
+            .build();
+
+    Function<Customer, ResponseEntity> customerOk = customer -> ResponseEntity.status(HttpStatus.OK)
+            .body(customer);
+
+    Function<String, ResponseStatusException> customerNotFound = customerId -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "Customer not found with id " + customerId);
 
 }

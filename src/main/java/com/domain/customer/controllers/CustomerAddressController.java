@@ -108,7 +108,7 @@ public class CustomerAddressController {
                     .peek(a -> a.setCustomer(customer))
                     .peek(a -> addressService.update(a))
                     .findFirst()
-                    .map( a -> addressAccepted.apply(a))
+                    .map( a -> addressNoContent.apply(a))
                     .orElseThrow(() -> addressNotFound.apply(addressId)); // 404, Not Found
 
         }catch (ResponseStatusException e){
@@ -153,7 +153,7 @@ public class CustomerAddressController {
     Function<Address, ResponseEntity> addressOk = address -> ResponseEntity.status(HttpStatus.OK)
             .body(address);
 
-    Function<Address, ResponseEntity> addressAccepted = address -> ResponseEntity.status(HttpStatus.ACCEPTED)
+    Function<Address, ResponseEntity> addressNoContent = address -> ResponseEntity.status(HttpStatus.NO_CONTENT)
             .build();
 
     Function<Integer, ResponseStatusException> addressNotFound = addressId -> new ResponseStatusException(
