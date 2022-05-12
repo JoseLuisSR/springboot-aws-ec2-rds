@@ -21,11 +21,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
 @RestController
 @RequestMapping(value = "${customers.context.path}")
-public class CustomerController {
+public class CustomerController implements CustomerAPI{
 
     @Autowired
     private CustomerService customerService;
@@ -39,7 +40,6 @@ public class CustomerController {
         return Optional.of(customerService.create(customer))
                 .map(customerId -> customerCreated.apply(customerId))
                 .get();
-
     }
 
     @GetMapping(path = "${customers.by.id}")
@@ -51,33 +51,34 @@ public class CustomerController {
     }
 
     @PatchMapping(path = "${customers.by.id}")
-    public ResponseEntity<Customer> updateCustomer(@PathVariable String id,
+    public ResponseEntity<Customer> partialUpdateCustomer(@PathVariable String customerId,
                                                    @RequestBody Customer customer){
 
-        if(!customerService.existsById(id))
+        if(!customerService.existsById(customerId))
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .build();
 
-        customer.setId(id);
+        customer.setId(customerId);
         customer = customerService.update(customer);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(customer);
     }
 
-    @PutMapping
-    public ResponseEntity updateCustomer(@RequestBody Customer customer){
+    @PutMapping(path = "${customers.by.id}")
+    public ResponseEntity totalUpdateCustomer(@PathVariable String customerId,
+                                              @RequestBody Customer newCustomer){
 
-        Boolean exists = customerService.existsById(customer.getId());
-        customer = customerService.update(customer);
-
-        if(exists)
-            return ResponseEntity.status(HttpStatus.ACCEPTED)
-                    .build();
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .header(HttpHeaders.LOCATION, buildCustomerLocationHeader(customer.getId()))
-                .build();
+        return customerService.readById(customerId)
+                .map(customer -> updateCustomer.apply(customer, newCustomer))
+                .map(customer -> customerService.update(customer))
+                .map(customer -> customerNotContent.apply(customer.getId()))
+                .orElseGet(() -> {
+                    String id = customerService.create(newCustomer);
+                    return ResponseEntity.status(HttpStatus.CREATED)
+                            .header(HttpHeaders.LOCATION, buildCustomerLocationHeader(id))
+                            .build();
+                });
     }
 
     @DeleteMapping(path = "${customers.by.id}")
@@ -117,5 +118,16 @@ public class CustomerController {
     Function<String, ResponseStatusException> customerNotFound = customerId -> new ResponseStatusException(
             HttpStatus.NOT_FOUND,
             "Customer not found with id " + customerId);
+
+    Function<String, ResponseEntity> customerNotContent = customerId -> ResponseEntity.status(HttpStatus.NO_CONTENT)
+            .build();
+
+    BiFunction<Customer, Customer, Customer> updateCustomer = (customer, newCustomer) -> {
+        customer.setFirstName(newCustomer.getFirstName());
+        customer.setLastName(newCustomer.getLastName());
+        customer.setAge(newCustomer.getAge());
+        customer.setAddresses(newCustomer.getAddresses());
+        return customer;
+    };
 
 }
