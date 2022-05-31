@@ -2,7 +2,6 @@ package com.domain.customer.controllers;
 
 import com.domain.customer.entities.Address;
 import com.domain.customer.entities.Customer;
-import com.domain.customer.services.AddressService;
 import com.domain.customer.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,17 +29,17 @@ public class CustomerAddressController implements CustomerAddressAPI{
 
     @Autowired
     private CustomerService customerService;
-    @Autowired
-    private AddressService addressService;
 
     @Value("${customers.context.path}")
     private String customerContextPath;
 
     public static final String ADDRESS_SUB_RESOURCE = "addresses";
 
-    public static final String ADDRESS_NOT_FOUND_MSG = "Address not found on Customer address List";
+    public static final String ADDRESS_NOT_FOUND_MSG = "Address with id %d not found on Customer's address List.";
 
-    public static final String CUSTOMER_NOT_FOUND_MSG = "Customer not found with id";
+    public static final String CUSTOMER_NOT_FOUND_MSG = "Customer not found with id %s.";
+
+    public static final String CUSTOMER_ADDRESSES_NOT_FOUND_MSG = "Customer with id %s, address list not found.";
 
     @PostMapping
     public ResponseEntity createAddress(@PathVariable("customerId") final String customerId,
@@ -50,9 +49,10 @@ public class CustomerAddressController implements CustomerAddressAPI{
                 .peek(newAddress::setCustomer)
                 .peek(customer -> customer.getAddresses().add(newAddress))
                 .map(customer -> customerService.update(customer))
-                .map(customer -> getLastAddress.apply(customer).get())
+                .map(customer -> getLastAddress.apply(customer)
+                        .orElseThrow(() -> customerAddressesNotFound.apply(customerId))) // 404, Customer's address list Not Found.
                 .findFirst()
-                .map(address -> customerAddressCreated.apply(address.getCustomer().getId(), address.getId()))
+                .map(address -> addressCreated.apply(address.getCustomer().getId(), address.getId()))
                 .orElseThrow(() -> customerNotFound.apply(customerId)); // 404, Customer Not Found.
     }
 
@@ -62,7 +62,7 @@ public class CustomerAddressController implements CustomerAddressAPI{
 
         return customerService.readById(customerId)
                 .map(customer -> findAddressById.apply(customer, addressId)
-                        .orElseThrow(() -> addressNotFound.apply(addressId))) //404, Address Not Found.
+                        .orElseThrow(() -> addressNotFound.apply(addressId)))// 404, Address Not Found.
                 .map(address -> addressOk.apply(address))
                 .orElseThrow(() -> customerNotFound.apply(customerId)); // 404, Customer Not Found.
     }
@@ -73,14 +73,14 @@ public class CustomerAddressController implements CustomerAddressAPI{
                                                @RequestBody final Address updateAddress){
 
         return customerService.readById(customerId).stream()
-                .peek(customer -> updateAddress.setCustomer(customer))
+                .peek(updateAddress::setCustomer)
                 .peek(customer -> findAddressById.apply(customer, addressId)
                         .map(address -> updateAddressFields.apply(address, updateAddress))
                         .map(List::of)
-                        .orElseThrow(()-> addressNotFound.apply(addressId))) // 404, Address Not Found.
+                        .orElseThrow(() -> addressNotFound.apply(addressId))) // 404, Address Not Found.
                 .peek(customer -> customerService.update(customer))
                 .findFirst()
-                .map(customerAddressOk)
+                .map(customer -> addressOk.apply(findAddressById.apply(customer, addressId).get()))
                 .orElseThrow(() -> customerNotFound.apply(customerId)); // 404, Customer Not Found.
     }
 
@@ -104,25 +104,24 @@ public class CustomerAddressController implements CustomerAddressAPI{
                 addressId.toString());
     }
 
-    BiFunction<String, Integer, ResponseEntity> customerAddressCreated = (customerId, addressId) -> ResponseEntity.status(HttpStatus.CREATED)
+    BiFunction<String, Integer, ResponseEntity> addressCreated = (customerId, addressId) -> ResponseEntity.status(HttpStatus.CREATED)
             .header(HttpHeaders.LOCATION, buildAddressLocationHeader(customerId, addressId))
             .build();
 
-    Function<Customer, ResponseEntity> customerAddressOk = customer -> ResponseEntity.status(HttpStatus.OK)
-            .body(customer);
     Function<Address, ResponseEntity> addressOk = address -> ResponseEntity.status(HttpStatus.OK)
             .body(address);
 
-    Function<Address, ResponseEntity> addressNoContent = address -> ResponseEntity.status(HttpStatus.NO_CONTENT)
-            .build();
-
     Function<Integer, ResponseStatusException> addressNotFound = addressId -> new ResponseStatusException(
             HttpStatus.NOT_FOUND,
-            this.ADDRESS_NOT_FOUND_MSG + " " + addressId);
+            String.format(ADDRESS_NOT_FOUND_MSG,addressId));
 
     Function<String, ResponseStatusException> customerNotFound = customerId -> new ResponseStatusException(
             HttpStatus.NOT_FOUND,
-            this.CUSTOMER_NOT_FOUND_MSG + " " + customerId);
+            String.format(CUSTOMER_NOT_FOUND_MSG, customerId));
+
+    Function<String, ResponseStatusException> customerAddressesNotFound = customerId -> new ResponseStatusException(
+                            HttpStatus.NOT_FOUND,
+                            String.format(CUSTOMER_ADDRESSES_NOT_FOUND_MSG, customerId));
 
     BiFunction<Address, Address, Address> updateAddressFields = (address, updateAddress) -> {
         address.setCountry(updateAddress.getCountry());
