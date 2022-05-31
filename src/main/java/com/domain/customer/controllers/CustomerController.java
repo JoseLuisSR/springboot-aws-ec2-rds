@@ -52,7 +52,7 @@ public class CustomerController implements CustomerAPI{
 
     @PatchMapping(path = "${customers.by.id}")
     public ResponseEntity<Customer> partialUpdateCustomer(@PathVariable String customerId,
-                                                   @RequestBody Customer customer){
+                                                          @RequestBody Customer customer){
 
         if(!customerService.existsById(customerId))
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
