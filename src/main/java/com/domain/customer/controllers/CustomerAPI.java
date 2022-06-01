@@ -97,15 +97,4 @@ public interface CustomerAPI {
             description = "Internal Server Error.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
     ResponseEntity deleteCustomer(@PathVariable String id);
-
-    @Operation(summary = "Read all Customer.",
-            description = "Read all Customers.",
-            tags={ "Customers" })
-    @ApiResponse(responseCode = "200",
-            description = "Customer Found.",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Customer.class)))
-    @ApiResponse(responseCode = "500",
-            description = "Internal Server Error.",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
-    ResponseEntity<Iterable<Customer>> getAllCustomers();
 }

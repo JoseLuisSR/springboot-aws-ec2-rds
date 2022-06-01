@@ -23,7 +23,6 @@ public class CustomerService {
 
     public String create(Customer customer){
 
-        logger.info("Create Customer");
         customer.setId(UUID.randomUUID().toString());
         customerRepository.save(customer);
         return customer.getId();
