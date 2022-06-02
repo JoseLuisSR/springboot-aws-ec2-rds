@@ -1,9 +1,9 @@
-package com.domain.customer.controllers;
+package com.domain.customer.controllers.in;
 
-import com.domain.customer.entities.Address;
 import com.domain.customer.entities.Customer;
 import com.domain.customer.entities.ErrorMessage;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -14,76 +14,87 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-public interface CustomerAddressAPI {
+public interface CustomerAPI {
 
-    @Operation(summary = "Create Address.",
-            description = "Create Address.",
-            tags={ "Customer Addresses" })
+    @Operation(summary = "Create Customer.",
+            description = "Create Customer.",
+            tags={ "Customers" })
     @ApiResponse(responseCode = "201",
-            description = "Create Address.",
+            description = "Customer Created.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = DefaultHttpResponseFactory.class)),
             headers = {
-                    @Header(name = HttpHeaders.LOCATION,
-                            schema = @Schema(type = "string"),
-                            description = "Location Header")})
+            @Header(name = HttpHeaders.LOCATION,
+                    schema = @Schema(type = "string"),
+                    description = "Location Header")})
     @ApiResponse(responseCode = "500",
             description = "Internal Server Error.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
-    ResponseEntity createAddress(@PathVariable("customerId") final String customerId,
-                                 @RequestBody final Address newAddress);
+    ResponseEntity createCustomer(@Parameter(description = "Customer JSON.")
+                                  @RequestBody final Customer customer);
 
-    @Operation(summary = "Read Address.",
-            description = "Read Address by Customer Id and Address Id.",
-            tags={ "Customer Addresses" })
+    @Operation(summary = "Read Customer by Id.",
+            description = "Read Customer by Id.",
+            tags={ "Customers" })
     @ApiResponse(responseCode = "200",
-            description = "Customer and Address Found.",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Address.class)))
-    @ApiResponse(responseCode = "404",
-            description = "Customer or Address Not Found",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
-    @ApiResponse(responseCode = "500",
-            description = "Internal Server Error.",
-            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
-    ResponseEntity<Address> getAddress(@PathVariable("customerId") final String customerId,
-                                       @PathVariable("addressId") final Integer addressId);
-
-    @Operation(summary = "Partial Update Customer and Address.",
-            description = "Partial Update Customer and Address by Customer Id and Address Id.",
-            tags={ "Customer Addresses" })
-    @ApiResponse(responseCode = "200",
-            description = "Customer and Address Updated.",
+            description = "Customer Found.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = Customer.class)))
     @ApiResponse(responseCode = "404",
-            description = "Customer or Address Not Found",
+            description = "Customer Not Found",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
     @ApiResponse(responseCode = "500",
             description = "Internal Server Error.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
-    ResponseEntity<Address> partialUpdateAddress(@PathVariable("customerId") final String customerId,
-                                                 @PathVariable("addressId") final Integer addressId,
-                                                 @RequestBody final Address updateAddress);
+    ResponseEntity<Customer> getCustomer(@Parameter(description = "Customer Identification.")
+                                         @PathVariable final String id);
 
-    @Operation(summary = "Total Update or Create Address.",
-            description = "Total update or Create Address.",
-            tags={ "Customer Addresses" })
+    @Operation(summary = "Partial Update Customer.",
+            description = "Partial update the Customer.",
+            tags={ "Customers" })
+    @ApiResponse(responseCode = "200",
+            description = "Customer Updated.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Customer.class)))
+    @ApiResponse(responseCode = "404",
+            description = "Customer Not Found",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+    @ApiResponse(responseCode = "500",
+            description = "Internal Server Error.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+    ResponseEntity<Customer> partialUpdateCustomer(@PathVariable String customerId,
+                                                   @RequestBody Customer customer);
+
+    @Operation(summary = "Total Update or Create Customer.",
+            description = "Total update or create the Customer.",
+            tags={ "Customers" })
     @ApiResponse(responseCode = "201",
-            description = "Address Created.",
+            description = "Customer Created.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = DefaultHttpResponseFactory.class)),
             headers = {
                     @Header(name = HttpHeaders.LOCATION,
                             schema = @Schema(type = "string"),
                             description = "Location Header")})
     @ApiResponse(responseCode = "204",
-            description = "Address Updated.",
+            description = "Customer Updated.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = DefaultHttpResponseFactory.class)))
     @ApiResponse(responseCode = "404",
-            description = "Customer or Address Not Found",
+            description = "Customer Not Found",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
     @ApiResponse(responseCode = "500",
             description = "Internal Server Error.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
-    ResponseEntity totalUpdateAddress(@PathVariable("customerId") final String customerId,
-                                  @PathVariable("addressId") final Integer addressId,
-                                  @RequestBody final Address updateAddress);
+    ResponseEntity totalUpdateCustomer(@PathVariable String customerId,
+                                       @RequestBody Customer customer);
 
+    @Operation(summary = "Delete Customer by Id.",
+            description = "Delete Customer by Id.",
+            tags={ "Customers" })
+    @ApiResponse(responseCode = "200",
+            description = "Customer Deleted.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = DefaultHttpResponseFactory.class)))
+    @ApiResponse(responseCode = "404",
+            description = "Customer Not Found",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+    @ApiResponse(responseCode = "500",
+            description = "Internal Server Error.",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
+    ResponseEntity deleteCustomer(@PathVariable String id);
 }

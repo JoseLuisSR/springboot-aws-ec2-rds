@@ -1,4 +1,4 @@
-package com.domain.customer.repositories;
+package com.domain.customer.controllers.out;
 
 import com.domain.customer.entities.Address;
 import org.springframework.data.repository.CrudRepository;

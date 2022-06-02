@@ -1,4 +1,4 @@
-package com.domain.customer.controllers;
+package com.domain.customer.controllers.in;
 
 import com.domain.customer.entities.Customer;
 import com.domain.customer.services.CustomerService;
@@ -70,7 +70,9 @@ public class CustomerController implements CustomerAPI{
                                               @RequestBody final Customer updateCustomer){
 
         return customerService.readById(customerId)
-                .map(customer -> partialUpdateCustomer(customerId, updateCustomer))
+                .map(customer -> updateCustomerFields.apply(customer, updateCustomer))
+                .map(customer -> customerService.update(customer))
+                .map(customerNotContent)
                 .orElseGet(() -> createCustomer(updateCustomer));
     }
 
@@ -80,7 +82,8 @@ public class CustomerController implements CustomerAPI{
         return customerService.readById(customerId)
                 .stream()
                 .peek(customer -> customerService.deleteById(customerId))
-                .map(customerOk)
+                .map(customer -> ResponseEntity.status(HttpStatus.OK)
+                        .build())
                 .findFirst()
                 .orElseThrow(() -> customerNotFound.apply(customerId));
     }
@@ -102,7 +105,7 @@ public class CustomerController implements CustomerAPI{
             HttpStatus.NOT_FOUND,
             String.format(CUSTOMER_NOT_FOUND_MSG, customerId));
 
-    Function<String, ResponseEntity> customerNotContent = customerId -> ResponseEntity.status(HttpStatus.NO_CONTENT)
+    Function<Customer, ResponseEntity> customerNotContent = customerId -> ResponseEntity.status(HttpStatus.NO_CONTENT)
             .build();
 
     Function<Customer, ResponseStatusException> customerServerError = customer -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
