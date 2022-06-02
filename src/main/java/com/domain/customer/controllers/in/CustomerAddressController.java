@@ -1,4 +1,4 @@
-package com.domain.customer.controllers;
+package com.domain.customer.controllers.in;
 
 import com.domain.customer.entities.Address;
 import com.domain.customer.entities.Customer;

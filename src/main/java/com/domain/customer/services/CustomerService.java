@@ -1,7 +1,7 @@
 package com.domain.customer.services;
 
 import com.domain.customer.entities.Customer;
-import com.domain.customer.repositories.CustomerRepository;
+import com.domain.customer.controllers.out.CustomerRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,6 @@ public class CustomerService {
 
     public String create(Customer customer){
 
-        logger.info("Create Customer");
         customer.setId(UUID.randomUUID().toString());
         customerRepository.save(customer);
         return customer.getId();
@@ -32,12 +31,6 @@ public class CustomerService {
     public Optional<Customer> readById(String id){
 
         return customerRepository.findById(id);
-    }
-
-    public Iterable<Customer> readAll() {
-
-        logger.info("Read Customer");
-        return customerRepository.findAll();
     }
 
     public Customer update(Customer customer){
@@ -52,11 +45,6 @@ public class CustomerService {
     public void deleteById(String id) throws EmptyResultDataAccessException {
 
         customerRepository.deleteById(id);
-    }
-
-    public Boolean existsById(String id){
-        return customerRepository.existsById(Optional.ofNullable(id)
-                .orElse(EMPTY));
     }
 
 }
