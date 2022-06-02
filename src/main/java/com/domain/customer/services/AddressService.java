@@ -1,7 +1,7 @@
 package com.domain.customer.services;
 
 import com.domain.customer.entities.Address;
-import com.domain.customer.repositories.AddressRepository;
+import com.domain.customer.controllers.out.AddressRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
