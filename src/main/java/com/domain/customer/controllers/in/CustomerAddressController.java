@@ -2,6 +2,7 @@ package com.domain.customer.controllers.in;
 
 import com.domain.customer.entities.Address;
 import com.domain.customer.entities.Customer;
+import com.domain.customer.services.AddressService;
 import com.domain.customer.services.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
@@ -29,6 +31,9 @@ public class CustomerAddressController implements CustomerAddressAPI{
 
     @Autowired
     private CustomerService customerService;
+
+    @Autowired
+    private AddressService addressService;
 
     @Value("${customers.context.path}")
     private String customerContextPath;
@@ -94,6 +99,24 @@ public class CustomerAddressController implements CustomerAddressAPI{
                         .map(address -> partialUpdateAddress(customerId, addressId, updateAddress))
                         .orElseGet(() -> createAddress(customerId, updateAddress)))
                 .orElseThrow(() -> customerNotFound.apply(customerId)); // 404, Customer Not Found.
+    }
+
+    @DeleteMapping(path = "${customers.address.by.id}")
+    public ResponseEntity deleteAddress(String customerId, Integer addressId) {
+
+        Customer customer = customerService.readById(customerId)
+                .orElseThrow(() -> customerNotFound.apply(customerId)); // 404, Customer Not Found.
+
+        Address address = customer.getAddresses().stream()
+                .filter(address1 -> address1.getId().equals(addressId))
+                .findFirst()
+                .orElseThrow(() -> addressNotFound.apply(addressId)); // 404, Address Not Found.
+
+        customer.removeAddress(address);
+        customerService.update(customer);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .build();
     }
 
     public String buildAddressLocationHeader(final String customerId, final Integer addressId){

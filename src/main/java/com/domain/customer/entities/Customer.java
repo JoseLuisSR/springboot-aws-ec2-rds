@@ -32,8 +32,12 @@ public class Customer {
     @Column(nullable = false)
     private Integer age;
 
-    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @JsonManagedReference
     private List<Address> addresses;
+
+    public void removeAddress(Address address){
+        this.addresses.remove(address);
+    }
 
 }

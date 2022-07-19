@@ -115,7 +115,6 @@ public class CustomerController implements CustomerAPI{
         customer.setFirstName(updateCustomer.getFirstName());
         customer.setLastName(updateCustomer.getLastName());
         customer.setAge(updateCustomer.getAge());
-        customer.setAddresses(updateCustomer.getAddresses());
         return customer;
     };
 

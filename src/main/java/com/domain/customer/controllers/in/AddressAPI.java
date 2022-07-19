@@ -14,11 +14,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-public interface CustomerAddressAPI {
+public interface AddressAPI {
 
     @Operation(summary = "Create Address.",
             description = "Create Address.",
-            tags={ "Customer Addresses" })
+            tags={ "Addresses" })
     @ApiResponse(responseCode = "201",
             description = "Create Address.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = DefaultHttpResponseFactory.class)),
@@ -29,27 +29,25 @@ public interface CustomerAddressAPI {
     @ApiResponse(responseCode = "500",
             description = "Internal Server Error.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
-    ResponseEntity createAddress(@PathVariable("customerId") final String customerId,
-                                 @RequestBody final Address newAddress);
+    ResponseEntity createAddress(@RequestBody final Address address);
 
     @Operation(summary = "Read Address.",
-            description = "Read Address by Customer Id and Address Id.",
-            tags={ "Customer Addresses" })
+            description = "Read Address by Address Id.",
+            tags={ "Addresses" })
     @ApiResponse(responseCode = "200",
-            description = "Customer and Address Found.",
+            description = "Address Found.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = Address.class)))
     @ApiResponse(responseCode = "404",
-            description = "Customer or Address Not Found",
+            description = "Address Not Found",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
     @ApiResponse(responseCode = "500",
             description = "Internal Server Error.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
-    ResponseEntity<Address> getAddress(@PathVariable("customerId") final String customerId,
-                                       @PathVariable("addressId") final Integer addressId);
+    ResponseEntity getAddress(@PathVariable Integer addressId);
 
     @Operation(summary = "Partial Update Customer and Address.",
             description = "Partial Update Customer and Address by Customer Id and Address Id.",
-            tags={ "Customer Addresses" })
+            tags={ "Addresses" })
     @ApiResponse(responseCode = "200",
             description = "Customer and Address Updated.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = Customer.class)))
@@ -59,13 +57,12 @@ public interface CustomerAddressAPI {
     @ApiResponse(responseCode = "500",
             description = "Internal Server Error.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
-    ResponseEntity<Address> partialUpdateAddress(@PathVariable("customerId") final String customerId,
-                                                 @PathVariable("addressId") final Integer addressId,
-                                                 @RequestBody final Address updateAddress);
+    ResponseEntity partialUpdateAddress(@PathVariable Integer addressId,
+                                        @RequestBody Address updateAddress);
 
     @Operation(summary = "Total Update or Create Address.",
             description = "Total update or Create Address.",
-            tags={ "Customer Addresses" })
+            tags={ "Addresses" })
     @ApiResponse(responseCode = "201",
             description = "Address Created.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = DefaultHttpResponseFactory.class)),
@@ -77,18 +74,17 @@ public interface CustomerAddressAPI {
             description = "Address Updated.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = DefaultHttpResponseFactory.class)))
     @ApiResponse(responseCode = "404",
-            description = "Customer or Address Not Found",
+            description = "Address Not Found",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
     @ApiResponse(responseCode = "500",
             description = "Internal Server Error.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
-    ResponseEntity totalUpdateAddress(@PathVariable("customerId") final String customerId,
-                                      @PathVariable("addressId") final Integer addressId,
-                                      @RequestBody final Address updateAddress);
+    ResponseEntity totalUpdateAddress(@PathVariable Integer addressId,
+                                      @RequestBody Address updateAddress);
 
     @Operation(summary = "Delete Addresses by Id.",
             description = "Delete Addresses by Id.",
-            tags={ "Customer Addresses" })
+            tags={ "Addresses" })
     @ApiResponse(responseCode = "200",
             description = "Addresses Deleted.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = DefaultHttpResponseFactory.class)))
@@ -98,7 +94,5 @@ public interface CustomerAddressAPI {
     @ApiResponse(responseCode = "500",
             description = "Internal Server Error.",
             content = @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorMessage.class)))
-    ResponseEntity deleteAddress(@PathVariable("customerId") final String customerId,
-                                 @PathVariable("addressId") final Integer addressId);
-
+    ResponseEntity deleteAddress(@PathVariable Integer addressId);
 }
