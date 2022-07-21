@@ -13,7 +13,7 @@ import java.util.UUID;
 public class CustomerService {
 
     @Autowired
-    CustomerRepository customerRepository;
+    private CustomerRepository customerRepository;
 
     public String create(Customer customer){
 

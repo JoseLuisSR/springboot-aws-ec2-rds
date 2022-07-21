@@ -27,7 +27,7 @@ public class Address {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
     @JsonBackReference
-    private Customer customer;
+    private CustomerAddress customerAddress;
 
     @Column(nullable = false)
     private String country;
@@ -41,6 +41,15 @@ public class Address {
     @Column(nullable = false)
     private String address;
 
+    public Address updateAddressFields(Address address){
+
+        this.setCountry(address.getCountry());
+        this.setState(address.getState());
+        this.setCity(address.getCity());
+        this.setAddress(address.getAddress());
+        return this;
+    }
+
     @Override
     public boolean equals(Object obj) {
 
@@ -52,13 +61,9 @@ public class Address {
 
         Address address = (Address) obj;
 
-        if( this.getCountry().equals(address.getCountry())
-                && this.getState().equals(address.getState())
-                && this.getCity().equals(address.getCity())
-                && this.getAddress().equals(getAddress()))
+        if(this.getId().equals(address.getId()))
             return true;
 
         return false;
     }
-
 }

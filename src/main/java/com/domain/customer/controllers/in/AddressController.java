@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
@@ -43,24 +42,24 @@ public class AddressController implements AddressAPI{
 
         return addressService.readById(addressId)
                 .map(addressOkWithContent)
-                .orElseThrow(() -> addressNotFound.apply(addressId));
+                .orElseThrow(() -> addressNotFound.apply(addressId)); // 404, Address Not Found.
     }
 
     @PatchMapping(path = "${addresses.by.id}")
     public ResponseEntity partialUpdateAddress(Integer addressId, Address updateAddress) {
 
         return addressService.readById(addressId)
-                .map(address -> updateAddressFields.apply(address, updateAddress))
+                .map(address -> address.updateAddressFields(updateAddress))
                 .map(addressService::update)
                 .map(addressOkWithContent)
-                .orElseThrow(() -> addressNotFound.apply(addressId));
+                .orElseThrow(() -> addressNotFound.apply(addressId)); // 404, Address Not Found.
     }
 
     @PutMapping(path = "${addresses.by.id}")
     public ResponseEntity totalUpdateAddress(Integer addressId, Address updateAddress) {
 
         return addressService.readById(addressId)
-                .map(address -> updateAddressFields.apply(address, updateAddress))
+                .map(address -> address.updateAddressFields(updateAddress))
                 .map(addressService::update)
                 .map(address -> addressNoContent.get())
                 .orElseGet(() -> createAddress(updateAddress));
@@ -73,7 +72,7 @@ public class AddressController implements AddressAPI{
                 peek(address -> addressService.delete(addressId))
                 .findFirst()
                 .map(address -> addressOkWithOutContent.get())
-                .orElseThrow(()-> addressNotFound.apply(addressId));
+                .orElseThrow(()-> addressNotFound.apply(addressId)); // 404, Address Not Found.
     }
 
     public String buildAddressLocationHeader(Integer addressId){
@@ -101,11 +100,4 @@ public class AddressController implements AddressAPI{
             HttpStatus.INTERNAL_SERVER_ERROR,
             String.format(ADDRESS_SERVER_ERROR_MESSAGE, address.getCountry(), address.getState(), address.getCity()));
 
-    BiFunction<Address, Address, Address> updateAddressFields = (address, updateAddress) -> {
-        address.setCountry(updateAddress.getCountry());
-        address.setState(updateAddress.getCountry());
-        address.setCity(updateAddress.getCity());
-        address.setAddress(updateAddress.getAddress());
-        return address;
-    };
 }
