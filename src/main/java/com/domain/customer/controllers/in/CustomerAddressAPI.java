@@ -1,6 +1,6 @@
 package com.domain.customer.controllers.in;
 
-import com.domain.customer.entities.Address;
+import com.domain.customer.entities.CustomerAddress.Address;
 import com.domain.customer.entities.Customer;
 import com.domain.customer.entities.ErrorMessage;
 import io.swagger.v3.oas.annotations.Operation;

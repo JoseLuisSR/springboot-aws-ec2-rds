@@ -1,18 +1,14 @@
 package com.domain.customer.entities;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
 import javax.persistence.Id;
-import javax.persistence.FetchType;
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
-import javax.persistence.ManyToOne;
-import javax.persistence.JoinColumn;
 
 @Getter
 @Setter
@@ -23,11 +19,6 @@ public class Address {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id", nullable = false)
-    @JsonBackReference
-    private CustomerAddress customerAddress;
 
     @Column(nullable = false)
     private String country;
@@ -41,12 +32,16 @@ public class Address {
     @Column(nullable = false)
     private String address;
 
-    public Address updateAddressFields(Address address){
+    @Column(name = "customer_id",
+            nullable = false)
+    private String customerId;
 
-        this.setCountry(address.getCountry());
-        this.setState(address.getState());
-        this.setCity(address.getCity());
-        this.setAddress(address.getAddress());
+    public Address updateAddressFields(Address updateAddress){
+
+        this.setCountry(updateAddress.getCountry());
+        this.setState(updateAddress.getState());
+        this.setCity(updateAddress.getCity());
+        this.setAddress(updateAddress.getAddress());
         return this;
     }
 

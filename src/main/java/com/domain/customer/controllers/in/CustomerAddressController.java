@@ -1,7 +1,7 @@
 package com.domain.customer.controllers.in;
 
-import com.domain.customer.entities.Address;
 import com.domain.customer.entities.CustomerAddress;
+import com.domain.customer.entities.CustomerAddress.Address;
 import com.domain.customer.services.CustomerAddressService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;

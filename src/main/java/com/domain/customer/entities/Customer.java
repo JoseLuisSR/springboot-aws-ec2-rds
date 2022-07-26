@@ -28,9 +28,9 @@ public class Customer {
 
     public Customer updateCustomerFields(Customer customer){
 
-        this.setFirstName(this.getFirstName());
-        this.setLastName(this.getLastName());
-        this.setAge(this.getAge());
+        this.setFirstName(customer.getFirstName());
+        this.setLastName(customer.getLastName());
+        this.setAge(customer.getAge());
         return this;
     }
 
