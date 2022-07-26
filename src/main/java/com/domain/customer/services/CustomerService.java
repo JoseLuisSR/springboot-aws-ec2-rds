@@ -1,9 +1,7 @@
 package com.domain.customer.services;
 
 import com.domain.customer.entities.Customer;
-import com.domain.customer.controllers.out.CustomerRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.domain.customer.repositories.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -14,12 +12,8 @@ import java.util.UUID;
 @Service
 public class CustomerService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    private static final String EMPTY = "";
-
     @Autowired
-    CustomerRepository customerRepository;
+    private CustomerRepository customerRepository;
 
     public String create(Customer customer){
 
@@ -46,5 +40,4 @@ public class CustomerService {
 
         customerRepository.deleteById(id);
     }
-
 }

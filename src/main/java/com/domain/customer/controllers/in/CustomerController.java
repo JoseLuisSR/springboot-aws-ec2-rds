@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Optional;
-import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 @RestController
 @RequestMapping(value = "${customers.context.path}")
@@ -51,7 +51,7 @@ public class CustomerController implements CustomerAPI{
 
         return customerService.readById(customerId)
                 .map(customer -> customerOk.apply(customer))
-                .orElseThrow(() -> customerNotFound.apply(customerId));
+                .orElseThrow(() -> customerNotFound.apply(customerId)); // 404, Customer Not Found.
     }
 
     @PatchMapping(path = "${customers.by.id}")
@@ -59,10 +59,10 @@ public class CustomerController implements CustomerAPI{
                                                 @RequestBody final Customer updateCustomer){
 
         return customerService.readById(customerId)
-                .map(customer -> updateCustomerFields.apply(customer, updateCustomer))
+                .map(customer -> customer.updateCustomerFields(updateCustomer))
                 .map(customer -> customerService.update(customer))
                 .map(customerOk)
-                .orElseThrow(() -> customerNotFound.apply(customerId));
+                .orElseThrow(() -> customerNotFound.apply(customerId)); // 404, Customer Not Found.
     }
 
     @PutMapping(path = "${customers.by.id}")
@@ -70,9 +70,9 @@ public class CustomerController implements CustomerAPI{
                                               @RequestBody final Customer updateCustomer){
 
         return customerService.readById(customerId)
-                .map(customer -> updateCustomerFields.apply(customer, updateCustomer))
+                .map(customer -> customer.updateCustomerFields(updateCustomer))
                 .map(customer -> customerService.update(customer))
-                .map(customerNotContent)
+                .map(customer -> customerNotContent.get())
                 .orElseGet(() -> createCustomer(updateCustomer));
     }
 
@@ -85,7 +85,7 @@ public class CustomerController implements CustomerAPI{
                 .map(customer -> ResponseEntity.status(HttpStatus.OK)
                         .build())
                 .findFirst()
-                .orElseThrow(() -> customerNotFound.apply(customerId));
+                .orElseThrow(() -> customerNotFound.apply(customerId)); // 404, Customer Not Found.
     }
 
     public String buildCustomerLocationHeader(String customerId){
@@ -105,18 +105,10 @@ public class CustomerController implements CustomerAPI{
             HttpStatus.NOT_FOUND,
             String.format(CUSTOMER_NOT_FOUND_MSG, customerId));
 
-    Function<Customer, ResponseEntity> customerNotContent = customerId -> ResponseEntity.status(HttpStatus.NO_CONTENT)
+    Supplier<ResponseEntity> customerNotContent = () -> ResponseEntity.status(HttpStatus.NO_CONTENT)
             .build();
 
     Function<Customer, ResponseStatusException> customerServerError = customer -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
             String.format(CUSTOMER_SERVER_ERROR_MSG, customer.getFirstName(), customer.getLastName()));
-
-    BiFunction<Customer, Customer, Customer> updateCustomerFields = (customer, updateCustomer) -> {
-        customer.setFirstName(updateCustomer.getFirstName());
-        customer.setLastName(updateCustomer.getLastName());
-        customer.setAge(updateCustomer.getAge());
-        customer.setAddresses(updateCustomer.getAddresses());
-        return customer;
-    };
 
 }
