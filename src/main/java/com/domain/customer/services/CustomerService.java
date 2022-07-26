@@ -1,7 +1,7 @@
 package com.domain.customer.services;
 
 import com.domain.customer.entities.Customer;
-import com.domain.customer.controllers.out.CustomerRepository;
+import com.domain.customer.repositories.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;

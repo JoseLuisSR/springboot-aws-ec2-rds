@@ -1,6 +1,6 @@
 package com.domain.customer.services;
 
-import com.domain.customer.controllers.out.CustomerAddressRepository;
+import com.domain.customer.repositories.CustomerAddressRepository;
 import com.domain.customer.entities.CustomerAddress;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
